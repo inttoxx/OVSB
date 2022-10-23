@@ -1,0 +1,426 @@
+FORMAT: 1A
+HOST: https://polls.apiblueprint.org/
+
+# Doc Api OVSB
+
+OVSB is a website where you can propose some activities around Strasbourg to other users of the website.
+
+## Login [/login]
+
+### Login [POST]
+
+If you want to do anythig on this API (except register),
+you will have to login first and use the generated token as Bearer in your future requests.
+
++ Request (application/json)
+
+        {
+            "email": "your@email.com",
+            "password": "YourPassword"
+        }
+
++   Response 201
+
+        {
+            "access_token": "a JWT token to use for your future requests"
+        }
+
+## Users Collection [/users]
+
+### List All Users [GET]
+    
++ Response 200 (application/json)
+
+        [
+            "users": [
+                {
+                    "_id": "628cddbad543f2256eb046db",
+                    "firstname": "YourFirstname",
+                    "lastname": "YourLastname",
+                    "email": "your@email.com",
+                    "gender": "other",
+                    "birthdate": "01-01-1990",
+                    "password": "$2b$10$whlOFCIWcxOO/Dm1Ls3gZOg6RuIZGPUUXpGqt1UuVvZUudcrBKssW",
+                    "admin": 1,
+                    "salt": "$2b$10$whlOFCIWcxOO/Dm1Ls3gZO",
+                    "__v": 0,
+                    "description": "Le compte admin",
+                    "picture_extension": "bd8b3361d1368db107af57c4e38cb921b.jpg"
+                },
+            ]
+        ]
+
+### Register [POST]
+
+To create an account using this action, it takes a JSON object
+containing your user's infos and a profil picture in a form data.
+
++ Request (application/json)
+
+        var formdata = new FormData();
+        formdata.append("picture_extension", fileInput.files[0], "Valentin21.jpg");
+        formdata.append("firstname", "YourFirstname");
+        formdata.append("lastname", "YourLastname");
+        formdata.append("email", "your@email.com");
+        formdata.append("gender", "other");
+        formdata.append("birthdate", "01-01-2000");
+        formdata.append("password", "YourPasswordWillBeEncrypted");
+        formdata.append("description", "A short description of you");
+
++ Response 201 (application/json)
+
+        {
+            "user": {
+                "picture_extension": "cd8eb2d012ce4fae3b998f7caa110a011.jpg",
+                "firstname": "YourFirstname",
+                "lastname": "YourLastname",
+                "email": "your@email.com",
+                "description": "A short description of you",
+                "gender": "other",
+                "birthdate": "01-01-2000",
+                "password": "$2b$10$6Ijt79WnPo.PvqZdm0KW7ugG0TcIZY26qNnjYCI1WVhioNbDG3OzC",
+                "admin": 0,
+                "_id": "629f12a65b028f3c73c648bf",
+                "salt": "$2b$10$6Ijt79WnPo.PvqZdm0KW7u",
+                "__v": 0
+            }
+        }
+## User [/users/{user_id}]
+
++ Parameters
+    + user_id (string) - ID of the Question in the form of an string
+
+### Update User [PATCH]
+
+You may need to update some users info.
+You will have to be an admin (1) or to update your own infos.
+For now you can't edit your profil picture.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer The token you get when you login
+        
+    + Body
+
+            {
+                "firstname": "YourNewFirstname"
+            }
+
++ Response 200 (application/json)
+
+        {
+            "user": {
+                "_id": "629f12a65b028f3c73c648bf",
+                "picture_extension": "cd8eb2d012ce4fae3b998f7caa110a011.jpg",
+                "firstname": "New firstname",
+                "lastname": "YourLastname",
+                "email": "your@email.com",
+                "description": "A short description of you",
+                "gender": "other",
+                "birthdate": "01-01-2000",
+                "password": "$2b$10$xgUwtHPFJWZ5BoptgtqHLOrhTqSM2BLjS8bl.Oker/VcSfmR5vcgC",
+                "admin": 0,
+                "salt": "$2b$10$xgUwtHPFJWZ5BoptgtqHLO",
+                "__v": 0
+            }
+        }
+        
+### Delete User [DELETE]
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: Bearer The token you get when you login
+
++ Response 200
+
+        {
+            "message": "user #{user_id} successfully deleted"
+        }
+
+## Activities Collection [/activities]
+
+### List All Activities [GET]
+
++ Response 200 (application/json)
+
+            [
+                {
+                    "activities": [
+                        {
+                            "_id": "629a23b5949d80ec0da97a93",
+                            "title": "title of the activity",
+                            "description": "The description of the activity",
+                            "category_id": "6295caa71a6db282a375ff04",
+                            "date": "2022-06-30",
+                            "time": "12:00",
+                            "duration": "02:00",
+                            "user_id": "629a2357949d80ec0da97a8e",
+                            "__v": 0
+                        }
+                    ]
+                }
+            ]
+
+### Create New Activity [POST]
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: Bearer The token you get when you login
+        
+    + Body
+
+            {
+                "title": "title of the activity",
+                "description": "The description of the activity",
+                "category_id": "id of the category of the activity",
+                "date": "05-05-2020",
+                "time": "12:00",
+                "duration": "02:00",
+                "user_id": "id of the user who create the activity"
+            }
+
++ Response 201 (application/json)
+
+            {
+                "activity": {
+                    "title": "title of the activity",
+                    "description": "The description of the activity",
+                    "category_id": "628cd79fd543f2256eb046d6",
+                    "date": "05-05-2020",
+                    "time": "12:00",
+                    "duration": "02:00",
+                    "user_id": "628cddbad543f2256eb046db",
+                    "_id": "629f21095b028f3c73c648cc",
+                    "__v": 0
+                }
+            }
+
+## Activity [/activities/{activity_id}]
+
++ Parameters
+    + activity_id (string) - ID of the activity in the form of an string
+
+### Update an Activity [PATCH]
+
+You will have to be an admin (1) or to be the creator of the activity to do it.
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: Bearer The token you get when you login
+            
+    + Body
+
+            {
+                "title": " new title of the activity",
+                "description": "The description of the activity",
+                "category_id": "id of the category of the activity",
+                "date": "05-05-2020",
+                "time": "12:00",
+                "duration": "02:00",
+                "user_id": "id of the user who create the activity"
+            }
+
++ Response 200 (application/json)
+
+            {
+                "message": "Activity with id #629f21095b028f3c73c648cc successfully updated"
+            }
+
+### Delete an Activity [DELETE]
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: Bearer The token you get when you login
+
++ Response 200
+
+        {
+            "message": "Activity #{activity_id} successfully deleted"
+        }
+
+## Categories Collection [/categories]
+
+### List all categories [GET]
+
++ Response 200 (application/json)
+
+            {
+                "categories": [
+                    {
+                        "_id": "628cd79fd543f2256eb046d6",
+                        "category_name": "rando",
+                        "__v": 0
+                    }
+            }
+
+### Create new categories [POST]
+
+You will have to be an admin to create a new category.
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: Bearer The token you get when you login
+    
+    + Body
+
+            {
+                "category_name": "name of the category"
+            }
+
++ Response 201 (application/json)
+
+            {
+                "category": {
+                    "category_name": " category name",
+                    "_id": "629f41685b028f3c73c648e7",
+                    "__v": 0
+                }
+            }
+
+## Category [/categories/{category_id}]
+
+You will have to be an admin to use those requests.
+
++ Parameters
+    + category_id (string) - ID of the category in the form of an string
+
+### Update a category [PATCH]
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: Bearer The token you get when you login
+    
+    + Body
+
+            {
+                "category_name": "new category name"
+            }
+
++ Response 200 (application/json)
+
+            {
+                "category": {
+                    "_id": "629f41685b028f3c73c648e7",
+                    "category_name": "new category name",
+                    "__v": 0
+                }
+            }
+
+### Delete a category [DELETE]
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: Bearer The token you get when you login
+
++ Response 200
+
+            {
+                "message": "category #{category_id} successfully deleted"
+            }
+
+## Comments Collection [/coments]
+
+### List all comments [GET]
+
++ Response 200 (application/json)
+
+            {
+               "comments": [
+                    {
+                        "_id": "629a23d0949d80ec0da97a97",
+                        "comment": "j'aime les frites",
+                        "user_id": "629a2357949d80ec0da97a8e",
+                        "activity_id": "629a23b5949d80ec0da97a93",
+                        "__v": 0
+                    }
+                ]
+            }
+
+### Create new comment [POST]
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: Bearer The token you get when you login
+
+    + Body
+
+            {
+                "comment": "your comment",
+                "user_id": "ID of the user who comment",
+                "activity_id": "ID of the activity commented"
+            }
+
++ Response 201
+
+            {
+                "comment": {
+                    "comment": "your comment",
+                    "user_id": "628cddbad543f2256eb046db",
+                    "activity_id": "629a23b5949d80ec0da97a93",
+                    "_id": "629f42e75b028f3c73c648ef",
+                    "__v": 0
+                }
+            }
+
+## Comment [/comments/{comment_id}]
+
++ Parameters
+    + comment_id (string) - ID of the comment in the form of an string
+
+### Update a comment [PATCH]
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: Bearer The token you get when you login
+    
+    + Body
+
+            {
+                "comment": "your new comment"
+            }
+
++ Response 200
+
+            {
+                "comment": {
+                    "_id": "629f42e75b028f3c73c648ef",
+                    "comment": "your new comment",
+                    "user_id": "628cddbad543f2256eb046db",
+                    "activity_id": "629a23b5949d80ec0da97a93",
+                    "__v": 0
+                }
+            }
+
+### Delete a comment [DELETE]
+
++ Request (application/json)
+
+    + Headers
+        
+            Authorization: Bearer The token you get when you login
+
++ Response 200
+
+        {
+            "message": "comment #{comment_id} successfully deleted"
+        }
